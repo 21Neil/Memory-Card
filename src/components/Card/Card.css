@@ -1,0 +1,18 @@
+.card {
+  padding: 2em 2em 0 2em;
+  width: fit-content;
+  border-radius: 1em;
+}
+
+.card__img img {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.card__title {
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

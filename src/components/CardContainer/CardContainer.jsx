@@ -38,8 +38,6 @@ const colorPatten = [
   '#805540',
 ];
 
-let init = true;
-
 const CardContainer = ({ addScore, resetScore }) => {
   const [imgData, setImgData] = useState([]);
 
@@ -86,31 +84,28 @@ const CardContainer = ({ addScore, resetScore }) => {
   shuffleArr(imgData).forEach(item => (imgDataObj[item.id] = item));
 
   useEffect(() => {
-    if (!init) {
-      let colorArr = [...colorPatten];
+    let colorArr = [...colorPatten];
 
-      const randomColor = () => {
-        const randomNum = Math.floor(Math.random() * colorArr.length);
-        const color = colorArr.splice(randomNum, 1);
+    const randomColor = () => {
+      const randomNum = Math.floor(Math.random() * colorArr.length);
+      const color = colorArr.splice(randomNum, 1);
 
-        if (colorArr.length === 0) colorArr = [...colorPatten];
+      if (colorArr.length === 0) colorArr = [...colorPatten];
 
-        return color;
-      };
+      return color;
+    };
 
-      Promise.all(
-        imgIds.map(async item => ({
-          id: item.id,
-          url: await getImg(item.id),
-          title: item.title,
-          color: randomColor(),
-          clicked: false,
-        }))
-      ).then(res => {
-        setImgData([...res]);
-      });
-    }
-    if (init) init = false;
+    Promise.all(
+      imgIds.map(async item => ({
+        id: item.id,
+        url: await getImg(item.id),
+        title: item.title,
+        color: randomColor(),
+        clicked: false,
+      }))
+    ).then(res => {
+      setImgData([...res]);
+    });
   }, []);
 
   return (

@@ -1,8 +1,11 @@
-import React from 'react'
+import './ScoreBoard.css'
 
-const ScoreBoard = () => {
+const ScoreBoard = ({score, bestScore}) => {
   return (
-    <div>ScoreBoard</div>
+    <div className='score-board'>
+      <span>Best score: {bestScore}</span>
+      <p>Score: {score}</p>
+    </div>
   )
 }
 

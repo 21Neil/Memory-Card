@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import Card from '../Card/Card';
-import './CardContainer.css'
+import './CardContainer.css';
 
 const giphyBaseUrl = 'https://api.giphy.com/v1/gifs/';
 
-const imageIds = {
-  john_wick: { id: 'Xpc7s6YMm3JIIioiXd', title: 'John Wick' },
-  leon: { id: '1TlI7LlYXzeko', title: 'Leon' },
-  mathilda: { id: 'g3cOYozjt6J9u', title: 'Mathilda' },
-  norman: { id: 'bbTwRabJQNuvK', title: 'Norman' },
-  max: { id: 'fZd7JstZGbKmc', title: 'Max' },
-  robert: { id: 'ot4GiknOIswWk', title: 'Robert' },
-  tommy: { id: 'lOUzl0Nj7P7rS1Km2M', title: 'Tommy' },
-  alfie: { id: '3o6fJaERrYkx0LVp0Q', title: 'Alfie' },
-  luca: { id: '3o752jvNx7aLBtdfdm', title: 'Luca' },
-  frank: { id: '3ov9kbr4DoEUCJAWOc', title: 'Frank' },
-  saul: { id: '11jkrpPYTQkaU8', title: 'Saul' },
-  mike: { id: 'xThuWkk3lUGuoxsdpe', title: 'Mike' },
-};
+const imgIds = [
+  { id: 'Xpc7s6YMm3JIIioiXd', title: 'John Wick' },
+  { id: '1TlI7LlYXzeko', title: 'Leon' },
+  { id: 'g3cOYozjt6J9u', title: 'Mathilda' },
+  { id: 'bbTwRabJQNuvK', title: 'Norman' },
+  { id: 'fZd7JstZGbKmc', title: 'Max' },
+  { id: 'ot4GiknOIswWk', title: 'Robert' },
+  { id: 'lOUzl0Nj7P7rS1Km2M', title: 'Tommy' },
+  { id: '3o6fJaERrYkx0LVp0Q', title: 'Alfie' },
+  { id: '3o752jvNx7aLBtdfdm', title: 'Luca' },
+  { id: '3ov9kbr4DoEUCJAWOc', title: 'Frank' },
+  { id: '11jkrpPYTQkaU8', title: 'Saul' },
+  { id: 'xThuWkk3lUGuoxsdpe', title: 'Mike' },
+];
 
-const apiKey = 'ZVV4MaUkogXKypgbrJ5D2j2DuVWtswTp';
+const apiKey = 'AlOXEY7Wby6RgIc6Kn5gqj3DVOjSp57B';
 
 const getImg = async id => {
   return fetch(`${giphyBaseUrl}${id}?api_key=${apiKey}`)
@@ -40,8 +40,50 @@ const colorPatten = [
 
 let init = true;
 
-const CardContainer = () => {
-  const [imagesUrl, setImageUrl] = useState([]);
+const CardContainer = ({ addScore, resetScore }) => {
+  const [imgData, setImgData] = useState([]);
+
+  const imgDataObj = {};
+
+  const handleCardOnClick = id => {
+    let index = -1;
+    const img = imgData.find((item, i) => {
+      if (item.id === id) {
+        index = i;
+        return item;
+      }
+    });
+    const tempImgData = [...imgData];
+
+    if (img.clicked) {
+      resetScore();
+      resetImgData();
+      return;
+    }
+
+    tempImgData[index].clicked = true;
+    addScore();
+    setImgData([...tempImgData]);
+  };
+
+  const resetImgData = () => {
+    const tempImgData = [...imgData];
+    tempImgData.forEach(item => (item.clicked = false));
+    setImgData([...tempImgData]);
+  };
+
+  const shuffleArr = arr => {
+    const tempArr = [...arr];
+    for (let i = tempArr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = tempArr[i];
+      tempArr[i] = tempArr[j];
+      tempArr[j] = temp;
+    }
+    return tempArr;
+  };
+
+  shuffleArr(imgData).forEach(item => (imgDataObj[item.id] = item));
 
   useEffect(() => {
     if (!init) {
@@ -56,31 +98,31 @@ const CardContainer = () => {
         return color;
       };
 
-      const setData = async () => {
-        let tempImagesUrl = [];
-        for (const prop in imageIds) {
-          tempImagesUrl.push({
-            url: await getImg(imageIds[prop].id),
-            title: imageIds[prop].title,
-            color: randomColor(),
-          });
-        }
-        setImageUrl([...tempImagesUrl]);
-      };
-
-      setData();
+      Promise.all(
+        imgIds.map(async item => ({
+          id: item.id,
+          url: await getImg(item.id),
+          title: item.title,
+          color: randomColor(),
+          clicked: false,
+        }))
+      ).then(res => {
+        setImgData([...res]);
+      });
     }
     if (init) init = false;
   }, []);
 
   return (
     <div className='card-container'>
-      {imagesUrl.map(item => (
+      {Object.values(imgDataObj).map(item => (
         <Card
+          id={item.id}
           url={item.url}
-          key={item.url}
+          key={item.id}
           title={item.title}
           color={item.color}
+          onClick={handleCardOnClick}
         />
       ))}
     </div>
